@@ -6,7 +6,6 @@ import time
 import os
 import cv2
 import sys
-import platform
 import pyaudio  # Required for speech recognition
 
 # Ensure Python 3.x is being used
@@ -14,14 +13,8 @@ if sys.version_info[0] < 3:
     print("Error: This script requires Python 3.x")
     sys.exit(1)
 
-# Set the path for Tesseract OCR based on the operating system
-if platform.system() == "Windows":
-    pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
-elif platform.system() == "Darwin":  # macOS
-    pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/bin/tesseract"
-else:
-    # Default Linux path
-    pytesseract.pytesseract.tesseract_cmd = r"/usr/bin/tesseract"
+# Set the path for Tesseract OCR (Update if necessary)
+pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/bin/tesseract"
 
 # Initialize text-to-speech engine
 speech_engine = pyttsx3.init()
@@ -167,8 +160,8 @@ if __name__ == "__main__":
     if user_choice == "yes":
         image_path = capture_handwritten_note()
     else:
-        # Update default image path for testing
-        image_path = "sample_notes.png"  # You'll need to provide a sample image
+        # Replace this path with an existing image file on your system
+        image_path = r"o.png"
 
     if image_path:
         read_notes_aloud(image_path)

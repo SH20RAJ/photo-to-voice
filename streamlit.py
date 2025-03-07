@@ -1,5 +1,5 @@
 import streamlit as st
-import pyttsx3
+from gtts import gTTS
 import pytesseract
 from PIL import Image
 import cv2
@@ -7,6 +7,7 @@ import numpy as np
 import io
 import platform
 import os
+import time
 
 # Set up Tesseract path
 if platform.system() == "Darwin":  # macOS
@@ -41,22 +42,17 @@ if not os.path.exists(OUTPUT_DIR):
 
 def text_to_speech(text, output_file="output.mp3"):
     output_path = os.path.join(OUTPUT_DIR, output_file)
+    
     # Ensure output directory exists and is writable
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
     elif not os.access(OUTPUT_DIR, os.W_OK):
         raise Exception("Audio output directory is not writable")
     
-    engine = None
     try:
-        engine = pyttsx3.init()
-        # Configure the engine for better audio quality
-        engine.setProperty('rate', 150)  # Speed of speech
-        engine.setProperty('volume', 0.9)  # Volume (0.0 to 1.0)
-        
-        # Save to file with proper format
-        engine.save_to_file(text, output_path)
-        engine.runAndWait()
+        # Create gTTS object and save to file
+        tts = gTTS(text=text, lang='en')
+        tts.save(output_path)
         
         # Verify the file was created and is readable
         if not os.path.exists(output_path):
@@ -64,6 +60,10 @@ def text_to_speech(text, output_file="output.mp3"):
         if not os.access(output_path, os.R_OK):
             raise Exception("Generated audio file is not readable")
         
+        # Verify file size is greater than 0
+        if os.path.getsize(output_path) == 0:
+            raise Exception("Generated audio file is empty")
+            
         return output_path
     
     except Exception as e:
@@ -74,14 +74,6 @@ def text_to_speech(text, output_file="output.mp3"):
             except:
                 pass
         raise Exception(f"Error generating audio: {str(e)}")
-    
-    finally:
-        # Ensure engine resources are properly cleaned up
-        if engine:
-            try:
-                engine.stop()
-            except:
-                pass
 
 def main():
     st.title("📝 Handwriting to Voice Converter")
@@ -107,7 +99,7 @@ def main():
                     
                     try:
                         # Convert to speech
-                        output_file = "output.mp3"
+                        output_file = f"output_{int(time.time())}.mp3"
                         output_path = text_to_speech(text, output_file)
                         
                         # Create audio player

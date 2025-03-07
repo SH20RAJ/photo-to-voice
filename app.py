@@ -168,7 +168,7 @@ if __name__ == "__main__":
         image_path = capture_handwritten_note()
     else:
         # Update default image path for testing
-        image_path = "sample_notes.png"  # You'll need to provide a sample image
+        image_path = "text.png"  # You'll need to provide a sample image
 
     if image_path:
         read_notes_aloud(image_path)

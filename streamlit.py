@@ -12,6 +12,8 @@ import time
 # Set up Tesseract path
 if platform.system() == "Darwin":  # macOS
     pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/bin/tesseract"
+else:  # Linux (Streamlit Cloud) or Windows
+    pytesseract.pytesseract.tesseract_cmd = r"/usr/bin/tesseract"
 
 def preprocess_image(image):
     # Convert to OpenCV format

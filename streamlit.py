@@ -77,65 +77,79 @@ def text_to_speech(text, output_file="output.mp3"):
 
 def main():
     st.title("📝 Handwriting to Voice Converter")
-    st.write("Upload an image of handwritten text to convert it to speech")
+    st.write("Upload an image of handwritten text or capture using camera to convert it to speech")
 
-    # File uploader
-    uploaded_file = st.file_uploader("Choose an image file", type=['png', 'jpg', 'jpeg'])
+    # Input method selection
+    input_method = st.radio("Choose input method", ["Upload Image", "Use Camera"])
 
-    if uploaded_file is not None:
-        # Display the uploaded image
-        image = Image.open(uploaded_file)
-        st.image(image, caption='Uploaded Image', use_container_width=True)
-
-        # Add a button to process the image
-        if st.button('Convert to Text and Speech'):
-            with st.spinner('Processing image...'):
-                # Extract text
-                text = extract_text(image)
-                
-                if text:
-                    st.subheader("Extracted Text:")
-                    st.write(text)
-                    
-                    try:
-                        # Convert to speech
-                        output_file = f"output_{int(time.time())}.mp3"
-                        output_path = text_to_speech(text, output_file)
-                        
-                        # Create audio player
-                        if os.path.exists(output_path):
-                            # Read the audio file once and store in memory
-                            with open(output_path, "rb") as audio_file:
-                                audio_bytes = audio_file.read()
-                            
-                            # Display audio player
-                            st.audio(audio_bytes, format='audio/mp3')
-                            
-                            # Add download button using the same audio bytes
-                            st.download_button(
-                                label="Download Audio",
-                                data=audio_bytes,
-                                file_name="handwriting_audio.mp3",
-                                mime="audio/mp3"
-                            )
-                    except Exception as e:
-                        st.error(f"Error generating audio: {str(e)}")
-                else:
-                    st.error("No text could be extracted from the image. Please try with a clearer image.")
+    if input_method == "Upload Image":
+        # File uploader
+        uploaded_file = st.file_uploader("Choose an image file", type=['png', 'jpg', 'jpeg'])
+        if uploaded_file is not None:
+            image = Image.open(uploaded_file)
+            process_image(image)
+    else:
+        # Camera input
+        camera_image = st.camera_input("Take a picture")
+        if camera_image is not None:
+            image = Image.open(camera_image)
+            process_image(image)
 
     # Add instructions
     with st.expander("How to use"):
         st.write("""
-        1. Click 'Browse files' to upload an image of handwritten text
-        2. Click 'Convert to Text and Speech' to process the image
-        3. View the extracted text and play the audio
-        4. Download the audio file if needed
+        1. Choose between uploading an image or using camera
+        2. If uploading: Click 'Browse files' to upload an image of handwritten text
+           If using camera: Click 'Take a picture' to capture the text
+        3. Click 'Convert to Text and Speech' to process the image
+        4. View the extracted text and play the audio
+        5. Download the audio file if needed
         
         For best results:
         - Ensure good lighting and clear handwriting
         - Use high-contrast images (dark text on light background)
         - Avoid blurry or skewed images
+        - Keep the camera steady when capturing
         """)
+
+def process_image(image):
+    st.image(image, caption='Input Image', use_container_width=True)
+
+    # Add a button to process the image
+    if st.button('Convert to Text and Speech'):
+        with st.spinner('Processing image...'):
+            # Extract text
+            text = extract_text(image)
+            
+            if text:
+                st.subheader("Extracted Text:")
+                st.write(text)
+                
+                try:
+                    # Convert to speech
+                    output_file = f"output_{int(time.time())}.mp3"
+                    output_path = text_to_speech(text, output_file)
+                    
+                    # Create audio player
+                    if os.path.exists(output_path):
+                        # Read the audio file once and store in memory
+                        with open(output_path, "rb") as audio_file:
+                            audio_bytes = audio_file.read()
+                        
+                        # Display audio player
+                        st.audio(audio_bytes, format='audio/mp3')
+                        
+                        # Add download button using the same audio bytes
+                        st.download_button(
+                            label="Download Audio",
+                            data=audio_bytes,
+                            file_name="handwriting_audio.mp3",
+                            mime="audio/mp3"
+                        )
+                except Exception as e:
+                    st.error(f"Error generating audio: {str(e)}")
+            else:
+                st.error("No text could be extracted from the image. Please try with a clearer image.")
 
 if __name__ == "__main__":
     main()

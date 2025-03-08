@@ -151,36 +151,64 @@ audio_control = {
 
 def listen_for_commands():
     recognizer = sr.Recognizer()
+    # Initialize microphone once outside the loop
+    try:
+        mic = sr.Microphone()
+        with mic as source:
+            # Initial ambient noise adjustment
+            recognizer.adjust_for_ambient_noise(source, duration=1)
+    except Exception as e:
+        st.error(f"Error initializing microphone: {str(e)}")
+        return
+
     while not audio_control['should_stop']:
         try:
-            with sr.Microphone() as source:
-                recognizer.adjust_for_ambient_noise(source)
-                audio = recognizer.listen(source, timeout=1)
+            with mic as source:
+                # Shorter timeout for better responsiveness
+                audio = recognizer.listen(source, timeout=2, phrase_time_limit=3)
                 command = recognizer.recognize_google(audio).lower()
+                st.write(f"Recognized command: {command}")
                 
-                if command in ['pause', 'resume', 'repeat', 'skip']:
+                if command in ['pause', 'resume', 'repeat', 'skip', 'stop', 'play']:
                     st.session_state['last_command'] = command
+                    
+                    # Map 'play' to 'resume' for consistency
+                    if command == 'play':
+                        command = 'resume'
+                    elif command == 'stop':
+                        command = 'pause'
+                    
                     audio_control['command_queue'].put(command)
                     
                     if command == 'pause':
                         audio_control['is_playing'] = False
+                        st.write("⏸️ Audio paused")
                     elif command == 'resume':
                         audio_control['is_playing'] = True
+                        st.write("▶️ Audio resumed")
                     elif command == 'repeat':
+                        st.write("🔄 Repeating current sentence")
                         # Stay on current sentence
                         pass
                     elif command == 'skip':
-                        # Move to next sentence if available
                         if audio_control['current_position'] < len(audio_control['sentences']) - 1:
                             audio_control['current_position'] += 1
+                            st.write("⏭️ Skipped to next sentence")
+                        else:
+                            st.write("📌 Already at the last sentence")
         except sr.WaitTimeoutError:
-            continue
+            # Silent timeout - normal operation
+            pass
         except sr.UnknownValueError:
-            continue
-        except sr.RequestError:
-            continue
+            # Silent unknown command - normal operation
+            pass
+        except sr.RequestError as e:
+            st.error(f"Could not request results from speech recognition service: {str(e)}")
         except Exception as e:
-            print(f"Error in voice recognition: {str(e)}")
+            st.error(f"Error in voice recognition: {str(e)}")
+            
+        # Small delay to prevent CPU overuse
+        time.sleep(0.1)
 
 def play_audio_with_controls(text):
     audio_control['current_text'] = text

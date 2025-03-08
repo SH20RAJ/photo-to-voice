@@ -162,15 +162,15 @@ def text_to_speech(text, output_file="output.mp3"):
 
 def main():
     # Main title with gradient effect
-    st.title("🔮 AI Vision & Voice")
+    st.title("🔮 InkTalk")
     
     # Subtitle with custom styling
     st.markdown("""
         <p style='text-align: center; color: #4facfe; font-size: 1.2rem; margin-bottom: 2rem;'>
-            Transform Your Handwritten Notes into Crystal Clear Audio
+        InkTalk : Listen to Your Notes!
             <br/>
             <span style='font-size: 0.9rem; color: #888;'>
-                Created by Team Buffering Bytes and Pari
+                Created by Team Buffering Bytes
             </span>
         </p>
     """, unsafe_allow_html=True)

@@ -142,3 +142,10 @@ A comprehensive Python application that converts handwritten notes to speech usi
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
+
+
+Allows real-time voice commands to control playback:(Additional enhancements)
+● "Pause" → Stops the audiobook
+● "Resume" → Continues reading from where it stopped
+● "Repeat" → Reads the last line again
+● "Skip" → Moves to the next sentence or paragraph

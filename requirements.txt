@@ -4,4 +4,5 @@ Pillow>=8.4.0
 opencv-python-headless>=4.5.5
 gTTS>=2.3.2
 numpy>=1.21.2
-pydub
+pydub>=0.25.1
+speechrecognition>=3.10.0

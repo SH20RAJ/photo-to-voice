@@ -13,6 +13,14 @@ from pydub import AudioSegment
 from pydub.playback import play
 import threading
 import queue
+import shutil
+
+# Check for ffmpeg installation
+def check_ffmpeg():
+    if shutil.which('ffmpeg') is None:
+        st.error("⚠️ ffmpeg is not installed. Audio playback may not work properly.\nPlease install ffmpeg:\n- On macOS: `brew install ffmpeg`\n- On Linux: `sudo apt-get install ffmpeg`\n- On Windows: Download from https://ffmpeg.org/download.html")
+        return False
+    return True
 
 # Set page configuration and custom theme
 st.set_page_config(
@@ -250,6 +258,9 @@ def text_to_speech(text, output_file="output.mp3"):
         raise Exception(f"Error generating audio: {str(e)}")
 
 def main():
+    # Check for ffmpeg installation
+    check_ffmpeg()
+    
     # Main title with gradient effect
     st.title("🔮 InkTalk")
     
